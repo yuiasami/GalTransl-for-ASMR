@@ -1,2 +1,2 @@
-python run_GalTransl.py
+.\venv\Scripts\python.exe main.py
 pause

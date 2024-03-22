@@ -1,13 +1,24 @@
 
 <div align=center><img width="150" height="150" src="./img/logo.png"/></div>
 
-<h1><p align='center' >GalTransl</p></h1>
+<h1><p align='center' >GalTransl for ASMR</p></h1>
 <div align=center><img src="https://img.shields.io/github/v/release/XD2333/GalTransl"/>   <img src="https://img.shields.io/github/license/XD2333/GalTransl"/>   <img src="https://img.shields.io/github/stars/XD2333/GalTransl"/></div>
-<p align='center' >支持GPT3.5/4/Newbing等大语言模型的Galgame自动化翻译解决方案</p>
+<p align='center' >支持GPT3.5/4/Newbing等大语言模型的ASMR自动化翻译解决方案</p>
 
   [English](https://github.com/XD2333/GalTransl/blob/main/README_EN.md)
   
   GalTransl是一套将数个基础功能上的微小创新与对GPT提示工程（Prompt Engineering）的深度利用相结合的Galgame自动化翻译工具，用于制作内嵌式翻译补丁。   
+
+## GalTransl for ASMR 使用方法
+
+1. 创建环境：运行 `build_environment.bat`。如果你没有Python请在[微软商店](https://apps.microsoft.com/detail/9p7qfqmjrfp7)下载。如果是国外用户请删去bat文件第二行。
+
+2. 下载Whisper模型：运行 `download_model.bat`。Small模型大约需要2G显存，Medium需要3G，Large-v3需要5G。默认是下载small模型，如果需要下载large-v3模型请修改`download_model.bat`文件把`rem`去掉。模型很大可能要下很久，请耐心等待。如果是国外用户请删去bat文件第二行。
+
+3. 配置运行参数：编辑`sampleProject\config.yaml`。请参考下面[翻译引擎介绍](#翻译引擎介绍)和[配置文件与翻译引擎设置](#配置文件与翻译引擎设置)。如果要使用Moonshot API（Kimichat）请把GPT3.5的endpoint改为`https://api.moonshot.cn`，并以GPT3.5模式启动。
+
+4. 运行GalTransl：运行 `run.bat`，按照提示进行，输出的字幕会存在输入文件的目录，并且会在`sampleProject`目录进行备份。
+
    
 ## 前言
 &ensp;&ensp;&ensp;&ensp;GalTransl的核心是一组由我(cx2333)构建的自动化翻译脚本，它解决了使用ChatGPT自动化翻译Galgame过程中已知的大部分问题，并大幅提高了整体的翻译质量。同时，通过与其他项目的组合，打通了制作补丁的完整流程，一定程度降低了上手门槛。对此感兴趣的朋友可以更容易的构建具有一定质量的机翻补丁，并(或许)可以尝试在此基础上高效的构建更高质量的汉化补丁。  
