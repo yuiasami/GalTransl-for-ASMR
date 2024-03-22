@@ -15,7 +15,7 @@
 
 2. 下载Whisper模型：运行 `download_model.bat`。Small模型大约需要2G显存，Medium需要3G，Large-v3需要5G。默认是下载small模型，如果需要下载large-v3模型请修改`download_model.bat`文件把`rem`去掉。模型很大可能要下很久，请耐心等待。如果是国外用户请删去bat文件第二行。
 
-3. 配置运行参数：编辑`sampleProject\config.yaml`。请参考下面[翻译引擎介绍](#翻译引擎介绍)和[配置文件与翻译引擎设置](#配置文件与翻译引擎设置)。如果要使用Moonshot API（Kimichat）请把GPT3.5的endpoint改为`https://api.moonshot.cn`，并以GPT3.5模式启动。
+3. 配置运行参数：编辑`sampleProject\config.yaml`。请参考下面[翻译引擎介绍](#翻译引擎介绍)和[配置文件与翻译引擎设置](#配置文件与翻译引擎设置)。如果要使用Moonshot API（Kimichat）请把GPT3.5的endpoint改为`https://api.moonshot.cn`，rewriteModelName为`moonshot-v1-8k`，并以GPT3.5模式启动。
 
 4. 运行GalTransl：运行 `run.bat`，按照提示进行，输出的字幕会存在输入文件的目录，并且会在`sampleProject`目录进行备份。
 
