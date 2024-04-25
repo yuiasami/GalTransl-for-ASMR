@@ -11,4 +11,5 @@ tqdm
 colorlog
 faster-whisper
 torch 
+gradio
 --extra-index-url  https://download.pytorch.org/whl/cu121

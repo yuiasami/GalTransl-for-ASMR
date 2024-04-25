@@ -8,3 +8,4 @@ useful_tools/GalTransl_DumpInjector/VNTextPatch/names.xml
 *.log
 
 venv*/
+sampleProject/
