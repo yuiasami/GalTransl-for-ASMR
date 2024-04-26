@@ -31,12 +31,14 @@ def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura
         if gpt_token:
             if 'GPT35' in line:
                 lines[idx+2] = f"      - token: {gpt_token}\n"
+                lines[idx+6] = f"    defaultEndpoint: https://api.openai.com\n"
+                lines[idx+7] = f'    rewriteModelName: ""\n'
             if 'GPT4' in line:
                 lines[idx+2] = f"      - token: {gpt_token}\n"
         if moonshot_token:
             if 'GPT35' in line:
-                lines[idx+2] = f"      - token: {moonshot_token}\n"
-                lines[idx+3] = f"        endpoint: https://api.moonshot.cn\n"
+                lines[idx+4] = f"      - token: {moonshot_token}\n"
+                lines[idx+6] = f"    defaultEndpoint: https://api.moonshot.cn\n"
                 lines[idx+7] = f'    rewriteModelName: "moonshot-v1-8k"\n'
         if sakura_address:
             if 'Sakura' in line:
@@ -67,9 +69,9 @@ with gr.Blocks() as demo:
     gr.Markdown("您可以使用本程序将日语音视频文件/字幕文件转换为中文字幕文件。")
     input_file = gr.File(label="1. 请选择音视频文件/SRT文件（或拖拽文件到窗口）")
     model_size = gr.Radio(
-        label="2. 请选择语音识别模型大小:（默认为large-v3）",
-        choices=['large-v3', 'small', 'medium'],
-        value='large-v3'
+        label="2. 请选择语音识别模型大小:",
+        choices=['small', 'medium', 'large-v3',],
+        value='small'
     )
     from GalTransl import TRANSLATOR_SUPPORTED
     translator = gr.Radio(
