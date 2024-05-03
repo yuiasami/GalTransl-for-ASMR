@@ -1,4 +1,6 @@
 # follow main.py to create a web-based demo
+import sys, os
+sys.path.append(os.path.dirname(__file__))
 import gradio as gr
 
 def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address):
@@ -59,10 +61,11 @@ def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura
     worker('sampleProject', 'config.yaml', translator, show_banner=False)
 
     print("正在生成字幕文件...")
-    from prompt2srt import make_srt
+    from prompt2srt import make_srt, make_lrc
     make_srt(output_file_path.replace('gt_input','gt_output'), input_file+'.srt')
+    make_lrc(output_file_path.replace('gt_input','gt_output'), input_file+'.lrc')
 
-    return input_file+'.srt'
+    return input_file+'.srt', input_file+'.lrc'
 
 with gr.Blocks() as demo:
     gr.Markdown("# 欢迎使用GalTransl for ASMR！")
@@ -85,8 +88,9 @@ with gr.Blocks() as demo:
     proxy_address = gr.Textbox(label="7. 请输入翻译引擎代理地址", placeholder="留空为不使用代理")
 
     run = gr.Button("8. 运行（状态详情请见命令行）")
-    output = gr.File(label="9. 字幕文件")
+    output_srt = gr.File(label="9. 字幕文件(SRT)")
+    output_lrc = gr.File(label="10. 字幕文件(LRC)")
 
-    run.click(worker, inputs=[input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address], outputs=output, queue=True)
+    run.click(worker, inputs=[input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc], queue=True)
 
 demo.queue().launch(inbrowser=True)
