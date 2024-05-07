@@ -64,8 +64,23 @@ def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura
     from prompt2srt import make_srt, make_lrc
     make_srt(output_file_path.replace('gt_input','gt_output'), input_file+'.srt')
     make_lrc(output_file_path.replace('gt_input','gt_output'), input_file+'.lrc')
-
+    print("字幕文件生成完成！")
+    print("输入输出缓存地址为：", os.path.dirname(input_file))
     return input_file+'.srt', input_file+'.lrc'
+
+def cleaner(input_file, output_srt, output_lrc):
+    print("正在清理输入...")
+    if input_file:
+        os.remove(input_file)
+    print("正在清理中间文件...")
+    import shutil
+    shutil.rmtree('sampleProject/gt_input')
+    shutil.rmtree('sampleProject/gt_output')
+    print("正在清理输出...")
+    if output_srt:
+        os.remove(output_srt)
+    if output_lrc:
+        os.remove(output_lrc)
 
 with gr.Blocks() as demo:
     gr.Markdown("# 欢迎使用GalTransl for ASMR！")
@@ -90,7 +105,9 @@ with gr.Blocks() as demo:
     run = gr.Button("8. 运行（状态详情请见命令行）")
     output_srt = gr.File(label="9. 字幕文件(SRT)")
     output_lrc = gr.File(label="10. 字幕文件(LRC)")
+    clean = gr.Button("11.清空输入输出缓存（请在使用完成后点击）")
 
     run.click(worker, inputs=[input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc], queue=True)
+    clean.click(cleaner, inputs=[input_file, output_srt, output_lrc])
 
 demo.queue().launch(inbrowser=True, server_name='0.0.0.0')
