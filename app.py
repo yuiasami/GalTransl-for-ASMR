@@ -93,4 +93,4 @@ with gr.Blocks() as demo:
 
     run.click(worker, inputs=[input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc], queue=True)
 
-demo.queue().launch(inbrowser=True)
+demo.queue().launch(inbrowser=True, server_name='0.0.0.0')
