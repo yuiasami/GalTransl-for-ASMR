@@ -7,11 +7,9 @@
 
   [English](https://github.com/XD2333/GalTransl/blob/main/README_EN.md)
   
-  GalTransl是一套将数个基础功能上的微小创新与对GPT提示工程（Prompt Engineering）的深度利用相结合的Galgame自动化翻译工具，用于制作内嵌式翻译补丁。   
+  GalTransl是一套将数个基础功能上的微小创新与对GPT提示工程（Prompt Engineering）的深度利用相结合的Galgame自动化翻译工具，用于制作内嵌式翻译补丁。 GalTransl for ASMR是GalTransl的一个分支，您可以使用本程序将日语音视频文件/字幕文件转换为中文字幕文件。
 
-## GalTransl for ASMR
-
-GalTransl for ASMR是GalTransl的一个分支，您可以使用本程序将日语音视频文件/字幕文件转换为中文字幕文件。
+## GalTransl for ASMR 本地部署（Windows）
 
 1. 创建环境：运行 `build_environment.bat`。如果你没有Python请在[微软商店](https://apps.microsoft.com/detail/9nrwmjp3717k)下载，请使用3.11及以上版本。脚本使用了国内镜像，如果是国外用户请删去bat文件第二行。
 
@@ -23,9 +21,9 @@ GalTransl for ASMR是GalTransl的一个分支，您可以使用本程序将日�
 
 * 输出的字幕会存在输入文件的目录，也可以在网页上下载，并且会在`sampleProject`目录进行备份。
 
-## Galtransl for ASMR + Sakura 0.9b
+## Galtransl for ASMR + Sakura 0.9b 离线翻译服务器部署（Linux）
 
-如果您熟悉Docker及其配置，您也可以使用docker创建一个虚拟机来构建整个离线翻译系统（约40G），以下以Linux系统为例：
+您也可以使用docker创建一个虚拟机来构建整个离线翻译系统（约40G），以下以Linux系统为例：
 
 ```
 git clone https://github.com/shinnpuru/GalTransl-for-ASMR
@@ -34,7 +32,7 @@ sudo docker build  -t galtransl_asmr  .
 sudo docker run --gpus all --ipc=host --network=host galtransl_asmr
 ```
 
-然后访问`http://127.0.0.1:7860`即可开始翻译，无需其他步骤。
+然后访问`http://127.0.0.1:7860`即可开始翻译，翻译器请选择sakura0.9。
    
 ## 前言
 &ensp;&ensp;&ensp;&ensp;GalTransl的核心是一组由我(cx2333)构建的自动化翻译脚本，它解决了使用ChatGPT自动化翻译Galgame过程中已知的大部分问题，并大幅提高了整体的翻译质量。同时，通过与其他项目的组合，打通了制作补丁的完整流程，一定程度降低了上手门槛。对此感兴趣的朋友可以更容易的构建具有一定质量的机翻补丁，并(或许)可以尝试在此基础上高效的构建更高质量的汉化补丁。  
