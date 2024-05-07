@@ -8,7 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN mkdir /app
 
 WORKDIR /app
-RUN git clone -b v0.2 https://github.com/shinnpuru/GalTransl-for-ASMR
+RUN git clone https://github.com/shinnpuru/GalTransl-for-ASMR
 
 WORKDIR /app/GalTransl-for-ASMR
 RUN pip config set global.index-url https://mirror.sjtu.edu.cn/pypi/web/simple
