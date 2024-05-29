@@ -10,3 +10,5 @@ useful_tools/GalTransl_DumpInjector/VNTextPatch/names.xml
 venv*/
 sampleProject/
 python_embeded/
+
+faster-whisper*/

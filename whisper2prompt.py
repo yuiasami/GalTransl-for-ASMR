@@ -47,10 +47,8 @@ language_code_list = [
     "auto"]
 
 def execute_asr(input_file, output_folder, model_size, language,precision):
-    if 'local' in model_size:
-        model_size = model_size.split('(')[0]
-        model_path = f'faster-whisper-{model_size}'
-    else:
+    model_path = f'faster-whisper-{model_size}'
+    if not os.path.exists(model_path):
         model_path = model_size
     if language == 'auto':
         language = None #不设置语种由模型自动输出概率最高的语种
