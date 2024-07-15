@@ -3,7 +3,20 @@ import sys, os
 sys.path.append(os.path.dirname(__file__))
 import gradio as gr
 
-def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address):
+TRANSLATOR_SUPPORTED = [
+    "sakura-009",
+    "sakura-010",
+    "index",
+    "gpt35-0613",
+    "gpt35-1106",
+    "gpt4-turbo",
+    "moonshot-v1-8k",
+    "qwen2-7b-instruct",
+    "qwen2-57b-a14b-instruct",
+    "qwen2-72b-instruct"
+]
+
+def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_address):
     if input_file.endswith('.srt'):
         from srt2prompt import make_prompt
         print("正在进行字幕转换...")
@@ -30,19 +43,24 @@ def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura
         lines = f.readlines()
 
     for idx, line in enumerate(lines):
-        if gpt_token:
+        if 'gpt' in translator and gpt_token:
             if 'GPT35' in line:
                 lines[idx+2] = f"      - token: {gpt_token}\n"
                 lines[idx+6] = f"    defaultEndpoint: https://api.openai.com\n"
                 lines[idx+7] = f'    rewriteModelName: ""\n'
             if 'GPT4' in line:
                 lines[idx+2] = f"      - token: {gpt_token}\n"
-        if moonshot_token:
+        if 'moonshot' in translator and gpt_token:
             if 'GPT35' in line:
-                lines[idx+4] = f"      - token: {moonshot_token}\n"
+                lines[idx+4] = f"      - token: {gpt_token}\n"
                 lines[idx+6] = f"    defaultEndpoint: https://api.moonshot.cn\n"
                 lines[idx+7] = f'    rewriteModelName: "moonshot-v1-8k"\n'
-        if sakura_address:
+        if 'qwen' in translator and gpt_token:
+            if 'GPT35' in line:
+                lines[idx+4] = f"      - token: {gpt_token}\n"
+                lines[idx+6] = f"    defaultEndpoint: https://dashscope.aliyuncs.com/compatible-mode\n"
+                lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
+        if ('sakura' in translator or 'index' in translator) and sakura_address:
             if 'Sakura' in line:
                 lines[idx+1] = f"    endpoint: {sakura_address}\n"
         if proxy_address:
@@ -52,6 +70,12 @@ def worker(input_file, model_size, translator, gpt_token, moonshot_token, sakura
         else:
             if 'proxy' in line:
                 lines[idx+1] = f"  enableProxy: false\n"
+
+    if 'moonshot' in translator or 'qwen' in translator:
+        translator = 'gpt35-0613'
+    
+    if 'index' in translator:
+        translator = 'sakura-009'
 
     with open('sampleProject/config.yaml', 'w', encoding='utf-8') as f:
         f.writelines(lines)
@@ -94,15 +118,13 @@ with gr.Blocks() as demo:
         choices=['small', 'medium', 'large-v3',],
         value='small'
     )
-    from GalTransl import TRANSLATOR_SUPPORTED
     translator = gr.Radio(
         label="3. 请选择翻译器：",
-        choices=list(TRANSLATOR_SUPPORTED.keys())[:6],
-        value=list(TRANSLATOR_SUPPORTED.keys())[0]
+        choices=TRANSLATOR_SUPPORTED,
+        value=TRANSLATOR_SUPPORTED[0]
     )
-    gpt_token = gr.Textbox(label="4. 请输入GPT3.5/4 API Token", placeholder="留空为使用上次配置的Token")
-    moonshot_token = gr.Textbox(label="5. 请输入Moonshot API Token", placeholder="留空为使用上次配置的Token，翻译器请选择GPT3.5")
-    sakura_address = gr.Textbox(label="6. 请输入Sakura API地址", placeholder="留空为使用上次配置的地址")
+    gpt_token = gr.Textbox(label="4. 请输入 API Token (GPT, Moonshot, Qwen)", placeholder="留空为使用上次配置的Token")
+    sakura_address = gr.Textbox(label="6. 请输入 API 地址 (Sakura, Index)", placeholder="留空为使用上次配置的地址")
     proxy_address = gr.Textbox(label="7. 请输入翻译引擎代理地址", placeholder="留空为不使用代理")
 
     run = gr.Button("8. 运行（状态详情请见命令行）")
@@ -111,7 +133,7 @@ with gr.Blocks() as demo:
     output_jp_srt = gr.File(label="11. 日语字幕文件(SRT)", interactive=False)
     clean = gr.Button("12.清空输入输出缓存（请在使用完成后点击）")
 
-    run.click(worker, inputs=[input_file, model_size, translator, gpt_token, moonshot_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc, output_jp_srt], queue=True)
+    run.click(worker, inputs=[input_file, model_size, translator, gpt_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc, output_jp_srt], queue=True)
     clean.click(cleaner, inputs=[input_file, output_srt, output_lrc, output_jp_srt])
 
 demo.queue().launch(inbrowser=True, server_name='0.0.0.0')

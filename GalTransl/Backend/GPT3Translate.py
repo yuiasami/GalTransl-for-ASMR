@@ -273,8 +273,10 @@ class CGPT35Translate:
             error_message = ""
             try:
                 result_json = json.loads(result_text)  # 尝试解析json
+                if type(result_json) == dict:
+                    result_json = result_json[list(result_json.keys())[0]] # 修复json格式
                 if len(result_json) != len(input_list):  # 输出行数错误
-                    LOGGER.error("-> 错误的输出行数：\n" + result_text + "\n")
+                    LOGGER.error("-> 错误的输出行数：\n" + result_json + "\n")
                     error_message = "输出行数错误"
                     error_flag = True
             except:
@@ -429,7 +431,7 @@ class CGPT35Translate:
             temperature, top_p = 1.0, 0.4
             frequency_penalty, presence_penalty = 0.3, 0.0
         else:  # normal default
-            temperature, top_p = 1.0, 1.0
+            temperature, top_p = 1.0, 0.9
             frequency_penalty, presence_penalty = 0.2, 0.0
         if self.eng_type != "unoffapi":
             self.chatbot.temperature = temperature

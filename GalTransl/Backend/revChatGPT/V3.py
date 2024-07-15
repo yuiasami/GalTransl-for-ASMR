@@ -214,6 +214,24 @@ class Chatbot:
                 "n": kwargs.get("n", self.reply_count),
                 "user": role,
                 "max_tokens": self.get_max_tokens(convo_id=convo_id),
+            } if not 'qwen' in self.engine else {
+                "model": self.engine,
+                "messages": self.conversation[convo_id],
+                "stream": True,
+                # kwargs
+                "temperature": kwargs.get("temperature", self.temperature),
+                "top_p": kwargs.get("top_p", self.top_p),
+                "presence_penalty": kwargs.get(
+                    "presence_penalty",
+                    self.presence_penalty,
+                ),
+                "response_format": kwargs.get(
+                    "response_format",
+                    self.response_format,
+                ),
+                "n": kwargs.get("n", self.reply_count),
+                "user": role,
+                "max_tokens": self.get_max_tokens(convo_id=convo_id),
             },
             timeout=kwargs.get("timeout", self.timeout),
             stream=True,
@@ -282,6 +300,20 @@ class Chatbot:
                 "frequency_penalty": kwargs.get(
                     "frequency_penalty",
                     self.frequency_penalty,
+                ),
+                "n": kwargs.get("n", self.reply_count),
+                "user": role,
+                "max_tokens": self.get_max_tokens(convo_id=convo_id),
+            } if not 'qwen' in self.engine else {
+                "model": self.engine,
+                "messages": self.conversation[convo_id],
+                "stream": True,
+                # kwargs
+                "temperature": kwargs.get("temperature", self.temperature),
+                "top_p": kwargs.get("top_p", self.top_p),
+                "presence_penalty": kwargs.get(
+                    "presence_penalty",
+                    self.presence_penalty,
                 ),
                 "n": kwargs.get("n", self.reply_count),
                 "user": role,
