@@ -282,6 +282,10 @@ class Chatbot:
         self.add_to_conversation(prompt, "user", convo_id=convo_id)
         self.__truncate_conversation(convo_id=convo_id)
         # Get response
+        if 'bigmodel' in self.api_address:
+            self.api_address = self.api_address.replace('v1', 'v4')
+        if 'minimax' in self.api_address:
+            self.api_address = self.api_address.replace('/chat/completions', '/text/chatcompletion_v2')
         async with self.aclient.stream(
             "post",
             self.api_address,

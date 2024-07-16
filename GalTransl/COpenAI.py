@@ -114,8 +114,13 @@ class COpenAITokenPool:
                 if self.force_eng_name:
                     model_name = self.force_eng_name
                 # test if have balance
+                api_address = token.domain + "/v1/chat/completions"
+                if 'bigmodel' in api_address:
+                    api_address = api_address.replace('v1', 'v4')
+                if 'minimax' in api_address:
+                    api_address = api_address.replace('/chat/completions', '/text/chatcompletion_v2')
                 chatResponse = await client.post(
-                    token.domain + "/v1/chat/completions",
+                    api_address,
                     headers=auth,
                     json={
                         "model": model_name,

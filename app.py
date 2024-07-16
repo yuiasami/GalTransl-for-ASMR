@@ -11,9 +11,13 @@ TRANSLATOR_SUPPORTED = [
     "gpt35-1106",
     "gpt4-turbo",
     "moonshot-v1-8k",
+    "glm-4",
+    "glm-4-flash",
     "qwen2-7b-instruct",
     "qwen2-57b-a14b-instruct",
-    "qwen2-72b-instruct"
+    "qwen2-72b-instruct",
+    "abab6.5-chat",
+    "abab6.5s-chat",
 ]
 
 def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_address):
@@ -21,6 +25,7 @@ def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_
         from srt2prompt import make_prompt
         print("正在进行字幕转换...")
         import os
+        os.makedirs('sampleProject/gt_input', exist_ok=True)
         output_file_path = os.path.join('sampleProject/gt_input', os.path.basename(input_file).replace('.srt','.json'))
 
         make_prompt(input_file, output_file_path)
@@ -60,6 +65,16 @@ def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_
                 lines[idx+4] = f"      - token: {gpt_token}\n"
                 lines[idx+6] = f"    defaultEndpoint: https://dashscope.aliyuncs.com/compatible-mode\n"
                 lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
+        if 'glm' in translator and gpt_token:
+            if 'GPT35' in line:
+                lines[idx+4] = f"      - token: {gpt_token}\n"
+                lines[idx+6] = f"    defaultEndpoint: https://open.bigmodel.cn/api/paas\n"
+                lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
+        if 'abab' in translator and gpt_token:
+            if 'GPT35' in line:
+                lines[idx+4] = f"      - token: {gpt_token}\n"
+                lines[idx+6] = f"    defaultEndpoint: https://api.minimax.chat\n"
+                lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
         if ('sakura' in translator or 'index' in translator) and sakura_address:
             if 'Sakura' in line:
                 lines[idx+1] = f"    endpoint: {sakura_address}\n"
@@ -71,7 +86,7 @@ def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_
             if 'proxy' in line:
                 lines[idx+1] = f"  enableProxy: false\n"
 
-    if 'moonshot' in translator or 'qwen' in translator:
+    if 'moonshot' in translator or 'qwen' in translator or 'glm' in translator or 'abab' in translator:
         translator = 'gpt35-0613'
     
     if 'index' in translator:
@@ -101,6 +116,7 @@ def cleaner(input_file, output_srt, output_lrc, output_jp_srt):
     import shutil
     shutil.rmtree('sampleProject/gt_input')
     shutil.rmtree('sampleProject/gt_output')
+    shutil.rmtree('sampleProject/transl_cache')
     print("正在清理输出...")
     if output_srt:
         os.remove(output_srt)
@@ -123,7 +139,7 @@ with gr.Blocks() as demo:
         choices=TRANSLATOR_SUPPORTED,
         value=TRANSLATOR_SUPPORTED[0]
     )
-    gpt_token = gr.Textbox(label="4. 请输入 API Token (GPT, Moonshot, Qwen)", placeholder="留空为使用上次配置的Token")
+    gpt_token = gr.Textbox(label="4. 请输入 API Token (GPT, Moonshot, Qwen, GLM, MiniMax/abab)", placeholder="留空为使用上次配置的Token")
     sakura_address = gr.Textbox(label="6. 请输入 API 地址 (Sakura, Index)", placeholder="留空为使用上次配置的地址")
     proxy_address = gr.Textbox(label="7. 请输入翻译引擎代理地址", placeholder="留空为不使用代理")
 
