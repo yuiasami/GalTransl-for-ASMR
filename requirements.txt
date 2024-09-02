@@ -12,4 +12,5 @@ colorlog
 faster-whisper
 torch 
 gradio
+yt-dlp
 --extra-index-url  https://download.pytorch.org/whl/cu121

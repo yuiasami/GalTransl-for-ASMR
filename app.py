@@ -1,5 +1,5 @@
 # follow main.py to create a web-based demo
-import sys, os
+import sys, os, shutil
 sys.path.append(os.path.dirname(__file__))
 import gradio as gr
 
@@ -20,7 +20,18 @@ TRANSLATOR_SUPPORTED = [
     "abab6.5s-chat",
 ]
 
-def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_address):
+def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address):
+    if yt_url:
+        from yt_dlp import YoutubeDL
+        import os
+        if os.path.exists('sampleProject/YoutubeDL.webm'):
+            os.remove('sampleProject/YoutubeDL.webm')
+        with YoutubeDL({'proxy': proxy_address,'outtmpl': 'sampleProject/YoutubeDL.webm'}) as ydl:
+            print("正在下载视频...")
+            results = ydl.download([yt_url])
+            print("视频下载完成！")
+        input_file = 'sampleProject/YoutubeDL.webm'
+
     if input_file.endswith('.srt'):
         from srt2prompt import make_prompt
         print("正在进行字幕转换...")
@@ -32,6 +43,10 @@ def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_
         print("字幕转换完成！")
     else:
         import os
+        os.makedirs('sampleProject/cache', exist_ok=True)
+        if os.path.exists(os.path.join('sampleProject/cache', os.path.basename(input_file))):
+            os.remove(os.path.join('sampleProject/cache', os.path.basename(input_file)))
+        input_file = shutil.move(input_file, 'sampleProject/cache/')
         print("正在进行语音识别...")
         from whisper2prompt import execute_asr
         output_file_path = execute_asr(
@@ -105,30 +120,26 @@ def worker(input_file, model_size, translator, gpt_token, sakura_address, proxy_
     make_lrc(output_file_path.replace('gt_input','gt_output'), input_file+'.lrc')
     make_srt(output_file_path, input_file+'.jp.srt')
     print("字幕文件生成完成！")
-    print("输入输出缓存地址为：", os.path.dirname(input_file))
-    return input_file+'.srt', input_file+'.lrc', input_file+'.jp.srt'
+    print("缓存地址为：", input_file)
+    return input_file+'.srt', input_file+'.lrc', input_file+'.jp.srt', input_file
 
-def cleaner(input_file, output_srt, output_lrc, output_jp_srt):
-    print("正在清理输入...")
-    if input_file:
-        os.remove(input_file)
+def cleaner():
     print("正在清理中间文件...")
-    import shutil
-    shutil.rmtree('sampleProject/gt_input')
-    shutil.rmtree('sampleProject/gt_output')
-    shutil.rmtree('sampleProject/transl_cache')
+    if os.path.exists('sampleProject/gt_input'):
+        shutil.rmtree('sampleProject/gt_input')
+    if os.path.exists('sampleProject/gt_output'):
+        shutil.rmtree('sampleProject/gt_output')
+    if os.path.exists('sampleProject/transl_cache'):
+        shutil.rmtree('sampleProject/transl_cache')
     print("正在清理输出...")
-    if output_srt:
-        os.remove(output_srt)
-    if output_lrc:
-        os.remove(output_lrc)
-    if output_jp_srt:
-        os.remove(output_jp_srt)
+    if os.path.exists('sampleProject/cache'):
+        shutil.rmtree('sampleProject/cache')
 
 with gr.Blocks() as demo:
     gr.Markdown("# 欢迎使用GalTransl for ASMR！")
     gr.Markdown("您可以使用本程序将日语音视频文件/字幕文件转换为中文字幕文件。")
     input_file = gr.File(label="1. 请选择音视频文件/SRT文件（或拖拽文件到窗口）")
+    yt_url = gr.Textbox(label="或者输入YouTube视频链接进行下载。(代理配置与翻译引擎相同)", placeholder="https://www.youtube.com/watch?v=...")
     model_size = gr.Radio(
         label="2. 请选择语音识别模型大小:",
         choices=['small', 'medium', 'large-v3',],
@@ -144,12 +155,14 @@ with gr.Blocks() as demo:
     proxy_address = gr.Textbox(label="7. 请输入翻译引擎代理地址", placeholder="留空为不使用代理")
 
     run = gr.Button("8. 运行（状态详情请见命令行）")
-    output_srt = gr.File(label="9. 字幕文件(SRT)", interactive=False)
-    output_lrc = gr.File(label="10. 字幕文件(LRC)", interactive=False)
-    output_jp_srt = gr.File(label="11. 日语字幕文件(SRT)", interactive=False)
-    clean = gr.Button("12.清空输入输出缓存（请在使用完成后点击）")
+    with gr.Row():
+        output_srt = gr.File(label="9. 字幕文件(SRT)", interactive=False)
+        output_lrc = gr.File(label="10. 字幕文件(LRC)", interactive=False)
+        output_jp_srt = gr.File(label="11. 日语字幕文件(SRT)", interactive=False)
+        output_mp4 = gr.File(label="12. 视频/音频文件", interactive=False)
+    clean = gr.Button("13.清空输入输出缓存（请在使用完成后点击）")
 
-    run.click(worker, inputs=[input_file, model_size, translator, gpt_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc, output_jp_srt], queue=True)
-    clean.click(cleaner, inputs=[input_file, output_srt, output_lrc, output_jp_srt])
+    run.click(worker, inputs=[input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc, output_jp_srt, output_mp4], queue=True)
+    clean.click(cleaner, inputs=[])
 
 demo.queue().launch(inbrowser=True, server_name='0.0.0.0')
