@@ -9,7 +9,10 @@ def make_prompt(input_file, output_file):
         lines = f.readlines()
     # parse srt file
     data = []
-    for i in range(0, len(lines), 4):
+    for i in range(0, len(lines)):
+        if not lines[i].strip().isdigit():
+            continue
+        
         start, end = lines[i+1].strip().split(" --> ")
 
         # hh:mm:ss,ms to seconds
