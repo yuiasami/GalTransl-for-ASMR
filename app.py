@@ -21,7 +21,7 @@ TRANSLATOR_SUPPORTED = [
 ]
 
 def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address):
-    if yt_url:
+    if yt_url and ('youtu.be' in yt_url or 'youtube.com' in yt_url):
         from yt_dlp import YoutubeDL
         import os
         if os.path.exists('sampleProject/YoutubeDL.webm'):
@@ -31,6 +31,27 @@ def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address
             results = ydl.download([yt_url])
             print("视频下载完成！")
         input_file = 'sampleProject/YoutubeDL.webm'
+
+    elif yt_url and 'BV' in yt_url:
+        from bilibili_dl.bilibili_dl.Video import Video
+        from bilibili_dl.bilibili_dl.downloader import download
+        from bilibili_dl.bilibili_dl.utils import send_request
+        from bilibili_dl.bilibili_dl.constants import URL_VIDEO_INFO
+        
+        res = send_request(URL_VIDEO_INFO, params={'bvid': yt_url})
+        download([Video(
+            bvid=res['bvid'],
+            cid=res['cid'] if res['videos'] == 1 else res['pages'][0]['cid'],
+            title=res['title'] if res['videos'] == 1 else res['pages'][0]['part'],
+            up_name=res['owner']['name'],
+            cover_url=res['pic'] if res['videos'] == 1 else res['pages'][0]['pic'],
+        )], False)
+
+        import re
+        title = res['title'] if res['videos'] == 1 else res['pages'][0]['part']
+        title = re.sub(r'[.:?/\\]', ' ', title).strip()
+        title = re.sub(r'\s+', ' ', title)
+        input_file = f'{title}.mp4'
 
     if input_file.endswith('.srt'):
         from srt2prompt import make_prompt
@@ -139,7 +160,7 @@ with gr.Blocks() as demo:
     gr.Markdown("# 欢迎使用GalTransl for ASMR！")
     gr.Markdown("您可以使用本程序将日语音视频文件/字幕文件转换为中文字幕文件。")
     input_file = gr.File(label="1. 请选择音视频文件/SRT文件（或拖拽文件到窗口）")
-    yt_url = gr.Textbox(label="或者输入YouTube视频链接进行下载。(代理配置与翻译引擎相同)", placeholder="https://www.youtube.com/watch?v=...")
+    yt_url = gr.Textbox(label="输入YouTube视频链接（包含youtu.be或者youtube.com）或者Bilibili的BV号进行下载。", placeholder="https://www.youtube.com/watch?v=...")
     model_size = gr.Radio(
         label="2. 请选择语音识别模型大小:",
         choices=['small', 'medium', 'large-v3',],
@@ -152,7 +173,7 @@ with gr.Blocks() as demo:
     )
     gpt_token = gr.Textbox(label="4. 请输入 API Token (GPT, Moonshot, Qwen, GLM, MiniMax/abab)", placeholder="留空为使用上次配置的Token")
     sakura_address = gr.Textbox(label="6. 请输入 API 地址 (Sakura, Index)", placeholder="留空为使用上次配置的地址")
-    proxy_address = gr.Textbox(label="7. 请输入翻译引擎代理地址", placeholder="留空为不使用代理")
+    proxy_address = gr.Textbox(label="7. 请输入翻译引擎和视频下载代理地址", placeholder="留空为不使用代理")
 
     run = gr.Button("8. 运行（状态详情请见命令行）")
     with gr.Row():
