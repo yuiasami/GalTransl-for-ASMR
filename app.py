@@ -7,6 +7,7 @@ TRANSLATOR_SUPPORTED = [
     "sakura-009",
     "sakura-010",
     "index",
+    "Galtransl",
     "gpt35-0613",
     "gpt35-1106",
     "gpt4-turbo",
@@ -20,7 +21,30 @@ TRANSLATOR_SUPPORTED = [
     "abab6.5s-chat",
 ]
 
-def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address):
+def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address, before_dict, gpt_dict, after_dict):
+    print("正在初始化项目文件夹...")
+    if before_dict:
+        with open('sampleProject/项目字典_译前.txt', 'w', encoding='utf-8') as f:
+            f.write(before_dict.replace(' ','\t'))
+    else:
+        import os
+        if os.path.exists('sampleProject/项目字典_译前.txt'):
+            os.remove('sampleProject/项目字典_译前.txt')
+    if gpt_dict:
+        with open('sampleProject/项目GPT字典.txt', 'w', encoding='utf-8') as f:
+            f.write(gpt_dict.replace(' ','\t'))
+    else:
+        import os
+        if os.path.exists('sampleProject/项目GPT字典.txt'):
+            os.remove('sampleProject/项目GPT字典.txt')
+    if after_dict:
+        with open('sampleProject/项目字典_译后.txt', 'w', encoding='utf-8') as f:
+            f.write(after_dict.replace(' ','\t'))
+    else:
+        import os
+        if os.path.exists('sampleProject/项目字典_译后.txt'):
+            os.remove('sampleProject/项目字典_译后.txt')
+
     if yt_url and ('youtu.be' in yt_url or 'youtube.com' in yt_url):
         from yt_dlp import YoutubeDL
         import os
@@ -37,7 +61,7 @@ def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address
         from bilibili_dl.bilibili_dl.downloader import download
         from bilibili_dl.bilibili_dl.utils import send_request
         from bilibili_dl.bilibili_dl.constants import URL_VIDEO_INFO
-        
+        print("正在下载视频...")
         res = send_request(URL_VIDEO_INFO, params={'bvid': yt_url})
         download([Video(
             bvid=res['bvid'],
@@ -46,7 +70,7 @@ def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address
             up_name=res['owner']['name'],
             cover_url=res['pic'] if res['videos'] == 1 else res['pages'][0]['pic'],
         )], False)
-
+        print("视频下载完成！")
         import re
         title = res['title'] if res['videos'] == 1 else res['pages'][0]['part']
         title = re.sub(r'[.:?/\\]', ' ', title).strip()
@@ -111,7 +135,7 @@ def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address
                 lines[idx+4] = f"      - token: {gpt_token}\n"
                 lines[idx+6] = f"    defaultEndpoint: https://api.minimax.chat\n"
                 lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
-        if ('sakura' in translator or 'index' in translator) and sakura_address:
+        if ('sakura' in translator or 'index' in translator or 'Galtransl' in translator) and sakura_address:
             if 'Sakura' in line:
                 lines[idx+1] = f"    endpoint: {sakura_address}\n"
         if proxy_address:
@@ -127,6 +151,9 @@ def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address
     
     if 'index' in translator:
         translator = 'sakura-009'
+
+    if 'Galtransl' in translator:
+        translator = 'sakura-010'
 
     with open('sampleProject/config.yaml', 'w', encoding='utf-8') as f:
         f.writelines(lines)
@@ -172,18 +199,24 @@ with gr.Blocks() as demo:
         value=TRANSLATOR_SUPPORTED[0]
     )
     gpt_token = gr.Textbox(label="4. 请输入 API Token (GPT, Moonshot, Qwen, GLM, MiniMax/abab)", placeholder="留空为使用上次配置的Token")
-    sakura_address = gr.Textbox(label="6. 请输入 API 地址 (Sakura, Index)", placeholder="留空为使用上次配置的地址")
-    proxy_address = gr.Textbox(label="7. 请输入翻译引擎和视频下载代理地址", placeholder="留空为不使用代理")
+    sakura_address = gr.Textbox(label="6. 请输入 API 地址 (Sakura, Index, Galtransl)", placeholder="例如：http://127.0.0.1:8080，留空为使用上次配置的地址")
+    proxy_address = gr.Textbox(label="7. 请输入翻译引擎和视频下载代理地址", placeholder="例如：http://127.0.0.1:7890，留空为不使用代理")
+    with gr.Accordion("8. 使用翻译字典（可选）", open=False):
+        with gr.Row():
+            before_dict = gr.Textbox(label="输入替换字典（日文到日文）", placeholder="日文\t日文\n日文\t日文")
+            gpt_dict = gr.Textbox(label="翻译替换字典（日文到中文，不支持sakura-009，Index）", placeholder="日文\t中文\n日文\t中文")
+            after_dict = gr.Textbox(label="输出替换字典（中文到中文）", placeholder="中文\t中文\n中文\t中文")
 
-    run = gr.Button("8. 运行（状态详情请见命令行）")
+
+    run = gr.Button("9. 运行（状态详情请见命令行）")
     with gr.Row():
-        output_srt = gr.File(label="9. 字幕文件(SRT)", interactive=False)
-        output_lrc = gr.File(label="10. 字幕文件(LRC)", interactive=False)
-        output_jp_srt = gr.File(label="11. 日语字幕文件(SRT)", interactive=False)
-        output_mp4 = gr.File(label="12. 视频/音频文件", interactive=False)
-    clean = gr.Button("13.清空输入输出缓存（请在使用完成后点击）")
+        output_srt = gr.File(label="字幕文件(SRT)", interactive=False)
+        output_lrc = gr.File(label="字幕文件(LRC)", interactive=False)
+        output_jp_srt = gr.File(label="日语字幕文件(SRT)", interactive=False)
+        output_mp4 = gr.File(label="视频/音频文件", interactive=False)
+    clean = gr.Button("10.清空输入输出缓存（请在使用完成后点击）")
 
-    run.click(worker, inputs=[input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address], outputs=[output_srt, output_lrc, output_jp_srt, output_mp4], queue=True)
+    run.click(worker, inputs=[input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address, before_dict, gpt_dict, after_dict], outputs=[output_srt, output_lrc, output_jp_srt, output_mp4], queue=True)
     clean.click(cleaner, inputs=[])
 
 demo.queue().launch(inbrowser=True, server_name='0.0.0.0')
