@@ -9,10 +9,11 @@
 
 ## 特色
 
-* 支持多种翻译模型，包括GPT3.5、GPT4、Sakura、Index、Moonshot、Minimax、Qwen、GLM等。
+* 支持多种翻译模型，包括GPT3.5、GPT4、Sakura、Index、Galtransl、Moonshot、Minimax、Qwen、GLM等。
 * 支持多种输入格式，包括音频、视频、SRT字幕。
 * 支持多种输出格式，包括SRT字幕、LRC字幕。
-* 支持从YouTube直接下载视频。
+* 支持字典功能，可以自定义翻译字典，替换输入输出。
+* 支持从YouTube/Bilibili直接下载视频。
 
 ## 本地部署（Windows）
 
