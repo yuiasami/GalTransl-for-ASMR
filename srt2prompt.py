@@ -2,25 +2,24 @@
 
 import json, argparse
 from datetime import timedelta
+import pysrt
 
 def make_prompt(input_file, output_file):
     # read srt file
-    with open(input_file, encoding='utf-8') as f:
-        lines = f.readlines()
+    subs = pysrt.open(input_file)
+
     # parse srt file
     data = []
-    for i in range(0, len(lines)):
-        if not lines[i].strip().isdigit():
-            continue
-        
-        start, end = lines[i+1].strip().split(" --> ")
+    for i in range(len(subs)):
+        start = subs[i].start
+        end = subs[i].end
 
-        # hh:mm:ss,ms to seconds
-        start = sum(x * int(t) for x, t in zip([3600, 60, 1, 0.001], start.replace(",",":").split(":")))
+        # time to seconds
+        start = start.hours * 3600 + start.minutes * 60 + start.seconds + start.milliseconds / 1000
 
-        end = sum(x * int(t) for x, t in zip([3600, 60, 1, 0.001], end.replace(",",":").split(":")))
+        end = end.hours * 3600 + end.minutes * 60 + end.seconds + end.milliseconds / 1000
 
-        message = lines[i+2].strip()
+        message = subs[i].text
         data.append({"start": start, "end": end, "message": message})
     # write prompt file
     with open(output_file, 'w', encoding="utf-8") as f:

@@ -85,21 +85,21 @@ def worker(input_file, yt_url, model_size, translator, gpt_token, sakura_address
     for input_file in input_files:
         print("-"*50)
         print("当前处理文件：", input_file)
+        import os
+        os.makedirs('sampleProject/cache', exist_ok=True)
+        if os.path.exists(os.path.join('sampleProject/cache', os.path.basename(input_file))):
+            os.remove(os.path.join('sampleProject/cache', os.path.basename(input_file)))
+        input_file = shutil.move(input_file, 'sampleProject/cache/')
+
         if input_file.endswith('.srt'):
             from srt2prompt import make_prompt
             print("正在进行字幕转换...")
-            import os
             os.makedirs('sampleProject/gt_input', exist_ok=True)
             output_file_path = os.path.join('sampleProject/gt_input', os.path.basename(input_file).replace('.srt','.json'))
 
             make_prompt(input_file, output_file_path)
             print("字幕转换完成！")
         else:
-            import os
-            os.makedirs('sampleProject/cache', exist_ok=True)
-            if os.path.exists(os.path.join('sampleProject/cache', os.path.basename(input_file))):
-                os.remove(os.path.join('sampleProject/cache', os.path.basename(input_file)))
-            input_file = shutil.move(input_file, 'sampleProject/cache/')
             print("正在进行语音识别...")
             from whisper2prompt import execute_asr
             output_file_path = execute_asr(
