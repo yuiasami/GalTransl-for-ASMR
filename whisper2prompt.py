@@ -74,7 +74,7 @@ def execute_asr(input_file, output_folder, model_size, language,precision):
             vad_parameters = dict(min_silence_duration_ms=700),
             language       = language)
         for segment in segments:
-            output.append(dict(name="Name",start=segment.start, end=segment.end,message=segment.text))
+            output.append(dict(name="",start=segment.start, end=segment.end,message=segment.text))
     except:
         return print(traceback.format_exc())
         
@@ -82,6 +82,11 @@ def execute_asr(input_file, output_folder, model_size, language,precision):
     with open(output_file_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False)
         print(f"ASR 任务完成->标注文件路径: {output_file_path}\n")
+
+    del model
+
+    import torch
+    torch.cuda.empty_cache()
     return output_file_path
 
 if __name__ == '__main__':
