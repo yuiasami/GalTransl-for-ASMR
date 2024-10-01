@@ -9,11 +9,12 @@
 
 ## 特色
 
-* 支持多种翻译模型，包括GPT3.5、GPT4、Sakura、Index、Galtransl、Moonshot、Minimax、Qwen、GLM等。
+* 支持多种翻译模型，包括在线模型（GPT3.5、GPT4、Moonshot、Minimax、Qwen、GLM）和本地模型（Sakura、Index、Galtransl）等。
 * 支持多种输入格式，包括音频、视频、SRT字幕。
 * 支持多种输出格式，包括SRT字幕、LRC字幕。
 * 支持字典功能，可以自定义翻译字典，替换输入输出。
 * 支持从YouTube/Bilibili直接下载视频。
+* 支持文件和链接批量处理，自动识别文件类型。
 
 ## 使用
 
@@ -21,9 +22,11 @@
 
 2. 启动：运行 `run_web_demo.bat`，按照数字提示进行。
 
-* Whisper模型会在第一次使用的时候自动下载，脚本使用了国内镜像，如果是国外用户请删去bat文件第一行。
+* 听写模型（Faster-Whisper）模型会在第一次使用的时候自动下载，脚本使用了国内镜像，如果是国外用户请删去bat文件第一行。
 
-* 输出的字幕会存在输入文件的目录，也可以在网页上下载，并且会在`sampleProject`目录进行备份。
+* 本地翻译模型需要自行下载，可以在[GalTransl](https://github.com/xd2333/GalTransl)，[Index](https://github.com/bilibili/Index-1.9B)，[Sakura](https://github.com/SakuraLLM/SakuraLLM)等项目中下载，仅支持GGUF格式的模型。
+
+* 输入的文件和输出的字幕会存在`sampleProject/cache`目录，可以通过网页一键清理。
 
 ## 声明
 
