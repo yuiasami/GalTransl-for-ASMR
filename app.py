@@ -21,7 +21,7 @@ TRANSLATOR_SUPPORTED = [
     "abab6.5s-chat",
 ]
 
-def worker(input_files, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address, before_dict, gpt_dict, after_dict):
+def worker(input_files, yt_url, model_size, translator, gpt_token, sakura_file, sakura_mode, proxy_address, before_dict, gpt_dict, after_dict):
     print("正在初始化项目文件夹...")
     if before_dict:
         with open('sampleProject/项目字典_译前.txt', 'w', encoding='utf-8') as f:
@@ -150,9 +150,6 @@ def worker(input_files, yt_url, model_size, translator, gpt_token, sakura_addres
                     lines[idx+4] = f"      - token: {gpt_token}\n"
                     lines[idx+6] = f"    defaultEndpoint: https://api.minimax.chat\n"
                     lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
-            if ('sakura' in translator or 'index' in translator or 'Galtransl' in translator) and sakura_address:
-                if 'Sakura' in line:
-                    lines[idx+1] = f"    endpoint: {sakura_address}\n"
             if proxy_address:
                 if 'proxy' in line:
                     lines[idx+1] = f"  enableProxy: true\n"
@@ -173,6 +170,16 @@ def worker(input_files, yt_url, model_size, translator, gpt_token, sakura_addres
         with open('sampleProject/config.yaml', 'w', encoding='utf-8') as f:
             f.writelines(lines)
 
+
+        if 'sakura' in translator:
+            print("启动Sakura翻译器...")
+            if not sakura_file or not sakura_file.endswith('.gguf'):
+                print("未选择模型文件，跳过翻译步骤...")
+                continue
+
+            import subprocess
+            pid = subprocess.Popen(['llama/server.exe', '-m', sakura_file, '-c', '2048', '-ngl' , str(sakura_mode), '--host', '127.0.0.1'])
+
         print("正在进行翻译...")
         from GalTransl.__main__ import worker
         worker('sampleProject', 'config.yaml', translator, show_banner=False)
@@ -182,6 +189,9 @@ def worker(input_files, yt_url, model_size, translator, gpt_token, sakura_addres
         make_lrc(output_file_path.replace('gt_input','gt_output'), input_file+'.lrc')
         print("字幕文件生成完成！")
         print("缓存地址为：", input_file)
+
+        if 'sakura' in translator:
+            pid.kill()
 
     os.startfile(os.path.join(os.getcwd(),'sampleProject/cache'))
 
@@ -201,32 +211,34 @@ with gr.Blocks() as demo:
     gr.Markdown("# 欢迎使用GalTransl for ASMR！")
     gr.Markdown("您可以使用本程序将日语音视频文件/字幕文件转换为中文字幕文件。")
     with gr.Accordion("1. 选择输入", open=True):
-        input_file = gr.Files(label="请选择音视频文件/SRT文件，或拖拽文件到窗口，可多选。")
-        yt_url = gr.Textbox(label="或者输入YouTube视频链接（包含youtu.be或者youtube.com）或者Bilibili的BV号进行下载，空行区分不同视频。", placeholder="https://www.youtube.com/watch?v=...\nBV1Lxt5e8EJF")
-        proxy_address = gr.Textbox(label="请输入网络访问代理地址（可选）。", placeholder="例如：http://127.0.0.1:7890，留空为不使用代理")
-    model_size = gr.Radio(
-        label="2. 请选择语音识别模型大小:",
-        choices=['small', 'medium', 'large-v3',],
-        value='small'
-    )
-    with gr.Accordion("3. 配置翻译（可选）", open=False):
+        input_file = gr.Files(label="请选择音视频文件/SRT文件或拖拽文件到窗口（可多选）。")
+        yt_url = gr.Textbox(label="或者输入YouTube视频链接（包含youtu.be或者youtube.com）或者Bilibili的BV号进行下载。（空行区分不同视频）", placeholder="例如：https://www.youtube.com/watch?v=...\n例如：BV1Lxt5e8EJF")
+        proxy_address = gr.Textbox(label="请输入网络访问代理地址（可选）。", placeholder="例如：http://127.0.0.1:7890，留空为不使用代理。")
+    with gr.Accordion("2. 语音识别", open=True):
+        model_size = gr.Radio(
+            label="请选择语音识别模型大小:",
+            choices=['small', 'medium', 'large-v3',],
+            value='large-v3'
+        )
+    with gr.Accordion("3. 字幕翻译（可选）", open=False):
         translator = gr.Radio(
-            label="请选择翻译器：",
+            label="请选择翻译模型：",
             choices=TRANSLATOR_SUPPORTED
         )
-        gpt_token = gr.Textbox(label="请输入 API Token (如果选择GPT, Moonshot, Qwen, GLM, MiniMax/abab)", placeholder="留空为使用上次配置的Token")
-        sakura_address = gr.Textbox(label="请输入 API 地址 (如果选择Sakura, Index, Galtransl)", placeholder="例如：http://127.0.0.1:8080，留空为使用上次配置的地址")
+        gpt_token = gr.Textbox(label="请输入在线模型API令牌。 (如果选择GPT, Moonshot, Qwen, GLM, MiniMax/abab)", placeholder="留空为使用上次配置的Token。")
+        sakura_file = gr.Dropdown(label="请选择本地模型文件。(如果选择Sakura, Index, Galtransl）", choices=[i for i in os.listdir('.') if i.endswith('gguf')])
+        sakura_mode = gr.Slider(label="请选择本地模型模式，0代表完全使用CPU，999代表完全使用GPU。 (如果选择Sakura, Index, Galtransl）", minimum=0, maximum=999, step=1, value=999)
     with gr.Accordion("4. 翻译字典（可选）", open=False):
         with gr.Row():
-            before_dict = gr.Textbox(label="输入替换字典（日文到日文）", placeholder="日文\t日文\n日文\t日文")
-            gpt_dict = gr.Textbox(label="翻译替换字典（日文到中文，不支持sakura-009，Index）", placeholder="日文\t中文\n日文\t中文")
-            after_dict = gr.Textbox(label="输出替换字典（中文到中文）", placeholder="中文\t中文\n中文\t中文")
+            before_dict = gr.Textbox(label="输入替换字典。（日文到日文）", placeholder="日文\t日文\n日文\t日文")
+            gpt_dict = gr.Textbox(label="翻译替换字典。（日文到中文，不支持sakura-009，Index）", placeholder="日文\t中文\n日文\t中文")
+            after_dict = gr.Textbox(label="输出替换字典。（中文到中文）", placeholder="中文\t中文\n中文\t中文")
 
 
     run = gr.Button("5. 运行（状态详情请见命令行，完成后打开输出文件夹）")
     clean = gr.Button("6.清空输入输出缓存（请在保存完成后点击）")
 
-    run.click(worker, inputs=[input_file, yt_url, model_size, translator, gpt_token, sakura_address, proxy_address, before_dict, gpt_dict, after_dict], queue=True)
+    run.click(worker, inputs=[input_file, yt_url, model_size, translator, gpt_token, sakura_file, sakura_mode, proxy_address, before_dict, gpt_dict, after_dict], queue=True)
     clean.click(cleaner, inputs=[])
 
 demo.queue().launch(inbrowser=True, server_name='0.0.0.0')
