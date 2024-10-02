@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
-
+*.bin
 # VSCode
 .vscode
 useful_tools/GalTransl_DumpInjector/config.ini
