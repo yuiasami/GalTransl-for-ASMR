@@ -215,12 +215,14 @@ with gr.Blocks() as demo:
         yt_url = gr.Textbox(label="或者输入YouTube视频链接（包含youtu.be或者youtube.com）或者Bilibili的BV号进行下载。（空行区分不同视频）", placeholder="例如：https://www.youtube.com/watch?v=...\n例如：BV1Lxt5e8EJF")
         proxy_address = gr.Textbox(label="请输入网络访问代理地址（可选）。", placeholder="例如：http://127.0.0.1:7890，留空为不使用代理。")
     with gr.Accordion("2. 语音识别", open=True):
-        whisper_file = gr.Dropdown(label="请选择语音识别模型:",choices=[i for i in os.listdir('whisper') if i.startswith('ggml')],)
+        whisper_lst = [i for i in os.listdir('whisper') if i.startswith('ggml')]
+        whisper_file = gr.Dropdown(label="请选择语音识别模型（模型请放在whisper文件夹下，支持whisper.cpp模型）",choices=whisper_lst, value=whisper_lst[0])
         whisper_language = gr.Dropdown(label="请选择语音识别语言:",choices=["ja", "en", "ko", "ru", "fr"], value='ja')
     with gr.Accordion("3. 字幕翻译（可选）", open=False):
         translator = gr.Radio(label="请选择翻译模型（非日语翻译请使用在线模型）：",choices=TRANSLATOR_SUPPORTED)
-        gpt_token = gr.Textbox(label="请输入在线模型API令牌。(如果选择GPT, Moonshot, Qwen, GLM, MiniMax/abab)", placeholder="留空为使用上次配置的Token。")
-        sakura_file = gr.Dropdown(label="请选择本地模型文件。(如果选择Sakura, Index, Galtransl）", choices=[i for i in os.listdir('llama') if i.endswith('gguf')])
+        gpt_token = gr.Textbox(label="请输入在线模型API令牌。(如果选择GPT, Moonshot, Qwen, GLM, MiniMax等)", placeholder="留空为使用上次配置的Token。")
+        sakura_lst = [i for i in os.listdir('llama') if i.endswith('gguf')]
+        sakura_file = gr.Dropdown(label="请选择本地模型文件。(如果选择Sakura, Index, Galtransl等，模型请放在llama文件夹下，支持llama.cpp模型）", choices=sakura_lst, value=sakura_lst[0])
         sakura_mode = gr.Slider(label="请选择本地模型模式，0代表完全使用CPU，999代表完全使用GPU。 (如果选择Sakura, Index, Galtransl）", minimum=0, maximum=999, step=1, value=999)
     with gr.Accordion("4. 翻译字典（可选）", open=False):
         with gr.Row():
