@@ -8,7 +8,7 @@ useful_tools/GalTransl_DumpInjector/VNTextPatch/names.xml
 *.log
 
 venv*/
-sampleProject/
+project/
 python_embeded/
 *.gguf
 faster-whisper*/

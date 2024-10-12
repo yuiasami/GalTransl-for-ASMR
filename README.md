@@ -40,7 +40,7 @@
 | GalTransl-7B-Q6 | 5.9 GiB | ~8 GB | [下载](https://hf-mirror.com/SakuraLLM/GalTransl-7B-v2.5/resolve/main/GalTransl-7B-v2-Q6_K.gguf?download=true) |
 | Sakura-13B-Q4  | 9.45 GB | ~16 GB | [下载](https://hf-mirror.com/SakuraLLM/Sakura-14B-LNovel-v0.9b-GGUF/resolve/main/sakura-13b-lnovel-v0.9b-Q4_K_M.gguf?download=true) |
 
-* 输入的文件和输出的字幕会存在`sampleProject/cache`目录，可以通过网页一键清理。
+* 输入的文件和输出的字幕会存在`project/cache`目录，可以通过网页一键清理。
 
 ## 声明
 

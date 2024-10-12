@@ -24,26 +24,26 @@ TRANSLATOR_SUPPORTED = [
 def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file, sakura_mode, proxy_address, before_dict, gpt_dict, after_dict):
     print("正在初始化项目文件夹...")
     if before_dict:
-        with open('sampleProject/项目字典_译前.txt', 'w', encoding='utf-8') as f:
+        with open('project/项目字典_译前.txt', 'w', encoding='utf-8') as f:
             f.write(before_dict.replace(' ','\t'))
     else:
         import os
-        if os.path.exists('sampleProject/项目字典_译前.txt'):
-            os.remove('sampleProject/项目字典_译前.txt')
+        if os.path.exists('project/项目字典_译前.txt'):
+            os.remove('project/项目字典_译前.txt')
     if gpt_dict:
-        with open('sampleProject/项目GPT字典.txt', 'w', encoding='utf-8') as f:
+        with open('project/项目GPT字典.txt', 'w', encoding='utf-8') as f:
             f.write(gpt_dict.replace(' ','\t'))
     else:
         import os
-        if os.path.exists('sampleProject/项目GPT字典.txt'):
-            os.remove('sampleProject/项目GPT字典.txt')
+        if os.path.exists('project/项目GPT字典.txt'):
+            os.remove('project/项目GPT字典.txt')
     if after_dict:
-        with open('sampleProject/项目字典_译后.txt', 'w', encoding='utf-8') as f:
+        with open('project/项目字典_译后.txt', 'w', encoding='utf-8') as f:
             f.write(after_dict.replace(' ','\t'))
     else:
         import os
-        if os.path.exists('sampleProject/项目字典_译后.txt'):
-            os.remove('sampleProject/项目字典_译后.txt')
+        if os.path.exists('project/项目字典_译后.txt'):
+            os.remove('project/项目字典_译后.txt')
 
     if not input_files:
         input_files = []
@@ -55,13 +55,13 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
         if not os.path.exists(input_file) and ('youtu.be' in input_file or 'youtube.com' in input_file):
             from yt_dlp import YoutubeDL
             import os
-            if os.path.exists('sampleProject/YoutubeDL.webm'):
-                os.remove('sampleProject/YoutubeDL.webm')
-            with YoutubeDL({'proxy': proxy_address,'outtmpl': 'sampleProject/YoutubeDL.webm'}) as ydl:
+            if os.path.exists('project/YoutubeDL.webm'):
+                os.remove('project/YoutubeDL.webm')
+            with YoutubeDL({'proxy': proxy_address,'outtmpl': 'project/YoutubeDL.webm'}) as ydl:
                 print("正在下载视频...")
                 results = ydl.download([input_file])
                 print("视频下载完成！")
-            input_file = 'sampleProject/YoutubeDL.webm'
+            input_file = 'project/YoutubeDL.webm'
 
         elif not os.path.exists(input_file) and 'BV' in yt_url:
             from bilibili_dl.bilibili_dl.Video import Video
@@ -87,27 +87,31 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
         print("-"*50)
         print("当前处理文件：", input_file)
         import os
-        os.makedirs('sampleProject/cache', exist_ok=True)
-        if os.path.exists(os.path.join('sampleProject/cache', os.path.basename(input_file))):
-            os.remove(os.path.join('sampleProject/cache', os.path.basename(input_file)))
-        input_file = shutil.move(input_file, 'sampleProject/cache/')
+        os.makedirs('project/cache', exist_ok=True)
+        if os.path.exists(os.path.join('project/cache', os.path.basename(input_file))):
+            os.remove(os.path.join('project/cache', os.path.basename(input_file)))
+        input_file = shutil.move(input_file, 'project/cache/')
 
         from prompt2srt import make_srt, make_lrc
         from srt2prompt import make_prompt
-        os.makedirs('sampleProject/gt_input', exist_ok=True)
+        os.makedirs('project/gt_input', exist_ok=True)
         if input_file.endswith('.srt'):
             print("正在进行字幕转换...")
-            output_file_path = os.path.join('sampleProject/gt_input', os.path.basename(input_file).replace('.srt','.json'))
+            output_file_path = os.path.join('project/gt_input', os.path.basename(input_file).replace('.srt','.json'))
             make_prompt(input_file, output_file_path)
             print("字幕转换完成！")
         else:
             print("正在进行语音识别...")
+            if not whisper_file:
+                print("未选择模型文件，请重新配置...")
+                break
+
             import subprocess
             pid = subprocess.Popen(['ffmpeg.exe', '-y', '-i', input_file, input_file+'.wav'])
             pid.wait()
             pid = subprocess.Popen(['whisper/main.exe', '-m', 'whisper/'+whisper_file, '-osrt', '-l', 'ja', input_file+'.wav'])
             pid.wait()
-            output_file_path = os.path.join('sampleProject/gt_input', os.path.basename(input_file)+'.json')
+            output_file_path = os.path.join('project/gt_input', os.path.basename(input_file)+'.json')
             make_prompt(input_file+'.srt', output_file_path)
             print("语音识别完成！")
 
@@ -116,7 +120,7 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
             continue
 
         print("正在进行翻译配置...")
-        with open('sampleProject/config.yaml', 'r', encoding='utf-8') as f:
+        with open('project/config.yaml', 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         for idx, line in enumerate(lines):
@@ -164,13 +168,13 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
         if 'Galtransl' in translator:
             translator = 'sakura-010'
 
-        with open('sampleProject/config.yaml', 'w', encoding='utf-8') as f:
+        with open('project/config.yaml', 'w', encoding='utf-8') as f:
             f.writelines(lines)
 
 
         if 'sakura' in translator:
             print("启动Sakura翻译器...")
-            if not sakura_file or not sakura_file.endswith('.gguf'):
+            if not sakura_file:
                 print("未选择模型文件，跳过翻译步骤...")
                 continue
 
@@ -179,7 +183,7 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
 
         print("正在进行翻译...")
         from GalTransl.__main__ import worker
-        worker('sampleProject', 'config.yaml', translator, show_banner=False)
+        worker('project', 'config.yaml', translator, show_banner=False)
 
         print("正在生成字幕文件...")
         make_srt(output_file_path.replace('gt_input','gt_output'), input_file+'.zh.srt')
@@ -190,19 +194,19 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
         if 'sakura' in translator:
             pid.kill()
 
-    os.startfile(os.path.join(os.getcwd(),'sampleProject/cache'))
+    os.startfile(os.path.join(os.getcwd(),'project/cache'))
 
 def cleaner():
     print("正在清理中间文件...")
-    if os.path.exists('sampleProject/gt_input'):
-        shutil.rmtree('sampleProject/gt_input')
-    if os.path.exists('sampleProject/gt_output'):
-        shutil.rmtree('sampleProject/gt_output')
-    if os.path.exists('sampleProject/transl_cache'):
-        shutil.rmtree('sampleProject/transl_cache')
+    if os.path.exists('project/gt_input'):
+        shutil.rmtree('project/gt_input')
+    if os.path.exists('project/gt_output'):
+        shutil.rmtree('project/gt_output')
+    if os.path.exists('project/transl_cache'):
+        shutil.rmtree('project/transl_cache')
     print("正在清理输出...")
-    if os.path.exists('sampleProject/cache'):
-        shutil.rmtree('sampleProject/cache')
+    if os.path.exists('project/cache'):
+        shutil.rmtree('project/cache')
 
 with gr.Blocks() as demo:
     gr.Markdown("# 欢迎使用GalTransl for ASMR！")
@@ -213,12 +217,12 @@ with gr.Blocks() as demo:
         proxy_address = gr.Textbox(label="请输入网络访问代理地址（可选）。", placeholder="例如：http://127.0.0.1:7890，留空为不使用代理。")
     with gr.Accordion("2. 语音识别", open=True):
         whisper_lst = [i for i in os.listdir('whisper') if i.startswith('ggml')]
-        whisper_file = gr.Dropdown(label="请选择语音识别模型（模型请放在whisper文件夹下，支持whisper.cpp模型）",choices=whisper_lst, value=whisper_lst[0])
+        whisper_file = gr.Dropdown(label="请选择语音识别模型（模型请放在whisper文件夹下，支持whisper.cpp模型）",choices=whisper_lst, value=whisper_lst[0] if whisper_lst else None)
     with gr.Accordion("3. 字幕翻译（可选）", open=False):
         translator = gr.Radio(label="请选择翻译模型：",choices=TRANSLATOR_SUPPORTED)
         gpt_token = gr.Textbox(label="请输入在线模型API令牌。(如果选择GPT, Moonshot, Qwen, GLM, MiniMax等)", placeholder="留空为使用上次配置的Token。")
         sakura_lst = [i for i in os.listdir('llama') if i.endswith('gguf')]
-        sakura_file = gr.Dropdown(label="请选择本地模型文件。(如果选择Sakura, Index, Galtransl等，模型请放在llama文件夹下，支持llama.cpp模型）", choices=sakura_lst, value=sakura_lst[0])
+        sakura_file = gr.Dropdown(label="请选择本地模型文件。(如果选择Sakura, Index, Galtransl等，模型请放在llama文件夹下，支持llama.cpp模型）", choices=sakura_lst, value=sakura_lst[0] if sakura_lst else None)
         sakura_mode = gr.Slider(label="请选择本地模型模式，0代表完全使用CPU，999代表完全使用GPU。 (如果选择Sakura, Index, Galtransl）", minimum=0, maximum=999, step=1, value=999)
     with gr.Accordion("4. 翻译字典（可选）", open=False):
         with gr.Row():
