@@ -12,3 +12,4 @@ colorlog
 gradio
 yt-dlp
 pysrt
+bilibili-dl
