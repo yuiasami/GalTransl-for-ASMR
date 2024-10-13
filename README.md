@@ -1,6 +1,3 @@
-
-<div align=center><img width="150" height="150" src="./img/logo.png"/></div>
-
 <h1><p align='center' >GalTransl for ASMR</p></h1>
 <div align=center><img src="https://img.shields.io/github/v/release/XD2333/GalTransl"/>   <img src="https://img.shields.io/github/license/XD2333/GalTransl"/>   <img src="https://img.shields.io/github/stars/XD2333/GalTransl"/></div>
 <p align='center' >支持GPT3.5/4/Newbing等大语言模型的ASMR自动化翻译解决方案</p>
