@@ -1,5 +1,5 @@
 
-<div align=center><img width="150" height="150" src="./img/logo.png"/></div>
+<div align=center><img src="title.jpg" alt="title" style="width:512px;"/></div>
 
 <h1><p align='center' >GalTransl for ASMR</p></h1>
 <div align=center><img src="https://img.shields.io/github/v/release/XD2333/GalTransl"/>   <img src="https://img.shields.io/github/license/XD2333/GalTransl"/>   <img src="https://img.shields.io/github/stars/XD2333/GalTransl"/></div>
