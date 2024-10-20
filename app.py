@@ -107,9 +107,9 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
                 break
 
             import subprocess
-            pid = subprocess.Popen(['ffmpeg.exe', '-y', '-i', input_file, input_file+'.wav'])
+            pid = subprocess.Popen(['ffmpeg.exe', '-y', '-i', input_file, '-acodec', 'pcm_s16le', '-ac', '1', '-ar', '16000', input_file+'.wav'])
             pid.wait()
-            pid = subprocess.Popen(['whisper/main.exe', '-m', 'whisper/'+whisper_file, '-osrt', '-l', 'ja', input_file+'.wav'])
+            pid = subprocess.Popen(['whisper/main.exe', '-m', 'whisper/'+whisper_file, '-osrt', '-l', 'ja', input_file+'.wav', '-of', input_file])
             pid.wait()
             output_file_path = os.path.join('project/gt_input', os.path.basename(input_file)+'.json')
             make_prompt(input_file+'.srt', output_file_path)

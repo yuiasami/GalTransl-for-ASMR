@@ -10,7 +10,7 @@
 ## 特色
 
 * 支持多种翻译模型，包括在线模型（GPT3.5、GPT4、Moonshot、Minimax、Qwen、GLM）和本地模型（Sakura、Index、Galtransl）等。
-* 支持AMD/NVIDIA/Intel GPU加速，翻译引擎支持CPU/GPU混合运行，具体支持的GPU请参考[whisper.cpp](https://github.com/Const-me/Whisper)和[llama.cpp](https://github.com/ggerganov/llama.cpp)。
+* 支持AMD/NVIDIA/Intel GPU加速（Vulkan），翻译引擎支持调整显存占用。
 * 支持多种输入格式，包括音频、视频、SRT字幕。
 * 支持多种输出格式，包括SRT字幕、LRC字幕。
 * 支持字典功能，可以自定义翻译字典，替换输入输出。
@@ -23,7 +23,7 @@
 
 2. 启动：运行 `run_web_demo.bat`，按照数字提示进行，可以只利用听写或者翻译功能。
 
-* 听写模型基于[whisper.cpp](https://github.com/Const-me/Whisper)引擎，需要自行下载，请选择合适的模型下载然后放到`whisper`文件夹下。
+* 听写模型基于[whisper.cpp](https://github.com/ggerganov/whisper.cpp)引擎，需要自行下载，请选择合适的模型下载然后放到`whisper`文件夹下。
 
 | 模型  | 磁盘    | 显存     | 链接 |
 | ------ | ------- | ------- | ----- |
