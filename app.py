@@ -125,29 +125,29 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
 
         for idx, line in enumerate(lines):
             if 'gpt' in translator and gpt_token:
-                if 'GPT35' in line:
+                if 'GPT35:' in line:
                     lines[idx+2] = f"      - token: {gpt_token}\n"
                     lines[idx+6] = f"    defaultEndpoint: https://api.openai.com\n"
                     lines[idx+7] = f'    rewriteModelName: ""\n'
-                if 'GPT4' in line:
+                if 'GPT4: # GPT4 API' in line:
                     lines[idx+2] = f"      - token: {gpt_token}\n"
             if 'moonshot' in translator and gpt_token:
-                if 'GPT35' in line:
+                if 'GPT35:' in line:
                     lines[idx+4] = f"      - token: {gpt_token}\n"
                     lines[idx+6] = f"    defaultEndpoint: https://api.moonshot.cn\n"
                     lines[idx+7] = f'    rewriteModelName: "moonshot-v1-8k"\n'
             if 'qwen' in translator and gpt_token:
-                if 'GPT35' in line:
+                if 'GPT35:' in line:
                     lines[idx+4] = f"      - token: {gpt_token}\n"
                     lines[idx+6] = f"    defaultEndpoint: https://dashscope.aliyuncs.com/compatible-mode\n"
                     lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
             if 'glm' in translator and gpt_token:
-                if 'GPT35' in line:
+                if 'GPT35:' in line:
                     lines[idx+4] = f"      - token: {gpt_token}\n"
                     lines[idx+6] = f"    defaultEndpoint: https://open.bigmodel.cn/api/paas\n"
                     lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
             if 'abab' in translator and gpt_token:
-                if 'GPT35' in line:
+                if 'GPT35:' in line:
                     lines[idx+4] = f"      - token: {gpt_token}\n"
                     lines[idx+6] = f"    defaultEndpoint: https://api.minimax.chat\n"
                     lines[idx+7] = f'    rewriteModelName: "{translator}"\n'
