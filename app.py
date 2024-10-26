@@ -179,7 +179,7 @@ def worker(input_files, yt_url, whisper_file, translator, gpt_token, sakura_file
                 continue
 
             import subprocess
-            pid = subprocess.Popen(['llama/server.exe', '-m', 'llama/'+sakura_file, '-c', '2048', '-ngl' , str(sakura_mode), '--host', '127.0.0.1'])
+            pid = subprocess.Popen(['llama/server.exe', '-m', 'llama/'+sakura_file, '-c', '2048', '-ngl' , str(sakura_mode), '--host', '127.0.0.1', '--port', '8989'])
 
         print("正在进行翻译...")
         from GalTransl.__main__ import worker
@@ -216,7 +216,7 @@ with gr.Blocks() as demo:
         yt_url = gr.Textbox(label="或者输入YouTube视频链接（包含youtu.be或者youtube.com）或者Bilibili的BV号进行下载。（空行区分不同视频）", placeholder="例如：https://www.youtube.com/watch?v=...\n例如：BV1Lxt5e8EJF")
         proxy_address = gr.Textbox(label="请输入网络访问代理地址（可选）。", placeholder="例如：http://127.0.0.1:7890，留空为不使用代理。")
     with gr.Accordion("2. 语音识别", open=True):
-        whisper_lst = [i for i in os.listdir('whisper') if i.startswith('ggml')]
+        whisper_lst = [i for i in os.listdir('whisper') if i.startswith('ggml') and i.endswith('bin')]
         whisper_file = gr.Dropdown(label="请选择语音识别模型（模型请放在whisper文件夹下，支持whisper.cpp模型）",choices=whisper_lst, value=whisper_lst[0] if whisper_lst else None)
     with gr.Accordion("3. 字幕翻译（可选）", open=False):
         translator = gr.Radio(label="请选择翻译模型：",choices=TRANSLATOR_SUPPORTED)
