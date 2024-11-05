@@ -1,6 +1,6 @@
 import sys, os
 
-os.chdir(sys._MEIPASS)
+#os.chdir(sys._MEIPASS)
 import shutil
 from PyQt5.QtCore import Qt, QThread, QObject, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QFileDialog, QFrame
